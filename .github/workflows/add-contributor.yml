@@ -42,7 +42,7 @@ jobs:
         if: github.actor == 'texas-egads'
         run: |
           REPO_OWNER="EGaDSAustin"
-          REPO_NAME="JJ-0"
+          REPO_NAME="JJ-Durian"
           GH_TOKEN="${{ secrets.GH_TOKEN }}"
           
           # Split comma-separated list of usernames to add into an array
