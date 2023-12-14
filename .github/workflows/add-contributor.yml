@@ -22,7 +22,7 @@ jobs:
         if: github.actor == 'texas-egads'
         run: |
           REPO_OWNER="EGaDSAustin"
-          REPO_NAME="JJ-Durian"
+          REPO_NAME="${{ secrets.REPO_NAME }}"
           GH_TOKEN="${{ secrets.GH_TOKEN }}"
 
           # Split comma-separated list of usernames to remove into an array
@@ -42,7 +42,7 @@ jobs:
         if: github.actor == 'texas-egads'
         run: |
           REPO_OWNER="EGaDSAustin"
-          REPO_NAME="JJ-Durian"
+          REPO_NAME="${{ secrets.REPO_NAME }}"
           GH_TOKEN="${{ secrets.GH_TOKEN }}"
           
           # Split comma-separated list of usernames to add into an array
