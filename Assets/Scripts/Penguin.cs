@@ -16,14 +16,26 @@ public class Penguin : MonoBehaviour
     public float curHealth;
     private float targetAngle;
 
+    Rigidbody rb;
+    Animator animator;
+    PlayerController player;
+
+    bool playerClose = false;
+
+    float sinOffset = 0;
+
     private void Start()
     {
+        sinOffset = Random.Range(0, 100f);
         curHealth = baseHealth;
+        rb = GetComponent<Rigidbody>();
+        animator = GetComponent<Animator>();
+        player = FindObjectOfType<PlayerController>();
     }
 
     private void FixedUpdate()
     {
-        if (!hasTarget)
+        if (!hasTarget || targetPenguin == null)
         {
             GameObject nearestPenguin = FindNearestPenguin();
             if (nearestPenguin != null)
@@ -33,8 +45,24 @@ public class Penguin : MonoBehaviour
         }
         else
         {
-            Rotate();
+            //Attracked by fish
+            playerClose = player.hasFish && Vector3.Distance(player.transform.position, transform.position) < 20;
+
+            //Rotate();
             MoveTowards(targetPenguin);
+            UpdateTargetRotation();
+
+            //Jumping
+            bool onGround = Physics.Raycast(new Ray(transform.position, Vector3.down), 1.5f);
+
+            if (onGround && Random.Range(0, 50f) < .1f)
+            {
+                rb.velocity += Vector3.up * 10;
+                animator.SetTrigger("Jump");
+            }
+            else
+                animator.ResetTrigger("Jump");
+            animator.ResetTrigger("Attack");
         }
     }
 
@@ -64,7 +92,7 @@ public class Penguin : MonoBehaviour
                 }
             }
         }
-        Debug.Log(nearestPenguin); // hmmm idk
+        //Debug.Log(nearestPenguin); // hmmm idk
         return nearestPenguin;
     }
 
@@ -74,14 +102,19 @@ public class Penguin : MonoBehaviour
         targetPenguin = target;
     }
 
-    /*private void UpdateTargetRotation()
+    private void UpdateTargetRotation()
     {
         if (targetPenguin != null)
         {
             Vector3 targetDirection = targetPenguin.transform.position - transform.position;
+            if (playerClose)
+                targetDirection = player.transform.position - transform.position;
+
             targetAngle = Mathf.Atan2(targetDirection.x, targetDirection.z) * Mathf.Rad2Deg;
+            targetAngle += Mathf.Sin(Time.time * 4 + sinOffset) * 40;
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.Euler(0, targetAngle + 180, 0), 2);
         }
-    }*/
+    }
 
     private void Rotate()
     {
@@ -91,31 +124,47 @@ public class Penguin : MonoBehaviour
     private void MoveTowards(GameObject target)
     {
         Vector3 targetPosition = target.transform.position;
-        Vector3 direction = targetPosition - transform.position;
-        transform.Translate(direction.normalized * moveSpeed * Time.deltaTime, Space.World);
+
+        if (playerClose)
+            targetPosition = player.transform.position;
+
+        Vector3 direction = (targetPosition - transform.position).normalized;
+
+        direction += new Vector3(Mathf.Sin(Time.time * 4 + sinOffset), 0, Mathf.Sin(Time.time * 3.5f + sinOffset)) * 1.5f;
+
+        rb.AddForce(direction.normalized * moveSpeed);
+        //transform.Translate(direction.normalized * moveSpeed * Time.deltaTime, Space.World);
+
+        //Sometimes resets target
+        if (Random.Range(0, 50f) < .05f)
+            hasTarget = false;
     }
 
     private void OnTriggerStay(Collider other)
     {
-        if (other.CompareTag("Penguin"))
+        if (other.CompareTag("Penguin") || other.CompareTag("Player"))
         {
-            Debug.Log("bruh");
-            Penguin targetPenguin = other.GetComponent<Penguin>();
-            if (targetPenguin != null)
+            //Debug.Log("bruh");
+            if (Random.Range(0, 100f) < .1)
             {
-                int damage = Random.Range(10, 26);
-                targetPenguin.TakeDamage(damage);
+                int damage = Random.Range(100, 260) * 4;
+                //targetPenguin.TakeDamage(damage);
+                //Launch Penguin Instead
+                Vector3 launchDir = (other.transform.position - transform.position).normalized + Vector3.up * .5f;
+                other.attachedRigidbody.AddForce(launchDir * damage);
 
-                if (targetPenguin.curHealth <= 0)
+                animator.SetTrigger("Attack");
+
+                /*if (targetPenguin.curHealth <= 0)
                 {
                     Destroy(other.gameObject);
-                }
+                }*/
             }
         }
     }
     private void TakeDamage(int damage)
     {
         curHealth -= damage;
-        Debug.Log(gameObject.name + damage + curHealth);
+        //Debug.Log(gameObject.name + damage + curHealth);
     }
 }
