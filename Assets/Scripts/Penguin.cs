@@ -29,40 +29,44 @@ public class Penguin : MonoBehaviour
         sinOffset = Random.Range(0, 100f);
         curHealth = baseHealth;
         rb = GetComponent<Rigidbody>();
+        rb.isKinematic = !PlayerController.GameStarted;
         animator = GetComponent<Animator>();
         player = FindObjectOfType<PlayerController>();
     }
 
     private void FixedUpdate()
     {
-        if (!hasTarget || targetPenguin == null)
+        if (PlayerController.GameStarted)
         {
-            GameObject nearestPenguin = FindNearestPenguin();
-            if (nearestPenguin != null)
+            if (!hasTarget || targetPenguin == null)
             {
-                SetTarget(nearestPenguin);
-            }
-        }
-        else
-        {
-            //Attracked by fish
-            playerClose = player.hasFish && Vector3.Distance(player.transform.position, transform.position) < 20;
-
-            //Rotate();
-            MoveTowards(targetPenguin);
-            UpdateTargetRotation();
-
-            //Jumping
-            bool onGround = Physics.Raycast(new Ray(transform.position, Vector3.down), 1.5f);
-
-            if (onGround && Random.Range(0, 50f) < .1f)
-            {
-                rb.velocity += Vector3.up * 10;
-                animator.SetTrigger("Jump");
+                GameObject nearestPenguin = FindNearestPenguin();
+                if (nearestPenguin != null)
+                {
+                    SetTarget(nearestPenguin);
+                }
             }
             else
-                animator.ResetTrigger("Jump");
-            animator.ResetTrigger("Attack");
+            {
+                //Attracked by fish
+                playerClose = player.hasFish && Vector3.Distance(player.transform.position, transform.position) < 20;
+
+                //Rotate();
+                MoveTowards(targetPenguin);
+                UpdateTargetRotation();
+
+                //Jumping
+                bool onGround = Physics.Raycast(new Ray(transform.position, Vector3.down), 1.5f);
+
+                if (onGround && Random.Range(0, 50f) < .1f)
+                {
+                    rb.velocity += Vector3.up * 10;
+                    animator.SetTrigger("Jump");
+                }
+                else
+                    animator.ResetTrigger("Jump");
+                animator.ResetTrigger("Attack");
+            }
         }
     }
 
