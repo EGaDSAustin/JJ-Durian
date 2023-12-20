@@ -8,4 +8,10 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/PenguinPlayerTest.unity
     guid: b8b0ddf9ad5aece478c4476fa4a197e4
+  - enabled: 0
+    path: Assets/Scenes/Snowing.unity
+    guid: 8652c0b4d7f6e9247a8a8e42902bf9b5
+  - enabled: 0
+    path: Assets/Scenes/prefabing.unity
+    guid: 4e42cebd5bdf6a64695b33b6c8158036
   m_configObjects: {}

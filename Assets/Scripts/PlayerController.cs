@@ -115,7 +115,7 @@ public class PlayerController : MonoBehaviour
 
     IEnumerator timer()
     {
-        int time = 20;
+        int time = 420;
         while (time > 0)
         {
             snowStormTxt.SetText("THE SNOWSTORM IS COMING - " + (time / 60) + ":" + (time % 60 < 10 ? "0" : "") + (time % 60));
